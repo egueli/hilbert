@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+ 
+<head>
+<title>Hilbert Code</title>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+<script src="hilbert.js"></script>
+
+<style>
+#map {
+  padding: 10px;
+  border:1px solid #000000;
+
+}
+</style>
+
+<script>
+
+var level = 7;
+var size_t =  (1<<(2*level));
+var size_2d = (1<<level);
+
+
+var range1 = [size_t / 3, 2*size_t/3];
+var span = range1[1] - range1[0];
+var range2 = [range1[0] + span/3, range1[1] - span/3];
+
+
+
+$(document).ready(function() {
+  setupUI();
+  updateUI();
+});
+ 
+function setupUI() {
+  $("#line-range-1").slider({
+    range: true,
+    min: 0,
+    max: size_t,
+    values: [range1[0], range1[1]],
+    slide: function(event, ui) {
+      range1 = ui.values;
+      updateUI();
+    }
+  });
+  $("#line-range-2").slider({
+    range: true,
+    min: 0,
+    max: size_t,
+    values: [range2[0], range2[1]],
+    slide: function(event, ui) {
+      range2 = ui.values;
+      updateUI();
+    }
+  });
+  $("#transform").click(function() {
+    alert("click!");
+  });
+}
+
+function updateUI() {
+    $("#text-range-1").text(range1[0] + " - " + range1[1]);
+    $("#text-range-2").text(range2[0] + " - " + range2[1]);
+
+    var canvas = document.querySelector("#map");
+    var context = canvas.getContext("2d");
+
+    var w = canvas.width;
+    var h = canvas.height;
+    context.clearRect(0, 0, w, h);
+    context.fillStyle = '#550000';
+    drawHilbertBlocks(context, w, h, range1[0], range1[1]);
+    context.fillStyle = '#DD0000';
+    drawHilbertBlocks(context, w, h, range2[0], range2[1]);
+}
+
+function drawHilbertBlocks(context, width, height, from, to) {
+  var size_cell = Math.min(width, height) / size_2d;
+  var prevXY = null;
+
+
+  context.beginPath();
+  for (var t=from; t<Math.min(to, size_t); t++) {
+    var xyH = hilbert.d2xy(level, t);
+    if (false) {
+      var xy = xyH.map(function(n) { return n * size_cell + size_cell / 2; });
+      if (prevXY) {
+        context.moveTo(prevXY[0], prevXY[1]);
+        context.lineTo(xy[0], xy[1]);
+      }
+      prevXY = xy;
+    }
+    else {
+      var xy = xyH.map(function(n) { return n * size_cell; });
+      context.fillRect(xy[0], xy[1], size_cell, size_cell);
+    }
+  }
+  context.stroke();
+}
+</script>
+
+
+</head>
+ 
+<body>
+
+<textarea id="source" rows="15" cols="80">
+</textarea>
+<input type="submit" id="transform"></input>
+
+
+<canvas id="map" width="256" height="256">
+    If you can see this message, your browser does not support canvas 
+    and needs an update. Sorry. :(
+</canvas>
+<div id="line-range-1"></div> 
+<div id="text-range-1">&nbsp;</div>
+<div id="line-range-2"></div> 
+<div id="text-range-2">&nbsp;</div>
+
+
+</body>
+</html>
