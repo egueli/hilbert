@@ -57,7 +57,23 @@ function setupUI() {
     }
   });
   $("#transform").click(function() {
-    alert("click!");
+    var code = $("#source").text();
+    var braceTree = [];
+    var parent = null;
+    var current = braceTree;
+    for (var i=0; i<code.length; i++) {
+      var ch = code.charAt(i);
+      if (ch == '{') {
+        while (maxLevel < level) {
+          current.push({
+            'begin': i,
+            'children': [],
+            'parent': parent
+          });
+        }
+        level++;
+      }
+    }
   });
 }
 
