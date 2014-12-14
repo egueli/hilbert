@@ -23,9 +23,7 @@ const level = 7;
 const size_t =  (1<<(2*level));
 const size_2d = (1<<level);
 
-// MVC model
-
-var colors = [
+const partsInit = [
 { color: "#5757FF", ranges: [] },
 { color: "#6A6AFF", ranges: [] },
 { color: "#7979FF", ranges: [] },
@@ -39,6 +37,10 @@ var colors = [
 { color: "#F9F9FF", ranges: [] },
 ];
 
+
+// MVC model
+var parts = [];
+var codeLen = 0;
 // end MVC model
 
 $(document).ready(function() {
@@ -47,24 +49,42 @@ $(document).ready(function() {
 });
  
 function setupUI() {
-  $("#transform").click(function() {
-    var code = $("#source").text();
-    var braceTree = [];
-    var parent = null;
-    var current = braceTree;
+  //$("#transform").click(function() {
+  $('#source').bind('input propertychange', function() {
+    const code = $("#source").val();
+    codeLen = code.length - 1;
+    
+    var level = 0;
+    var newLevel = true;
+    
+    parts = JSON.parse(JSON.stringify(partsInit));
+
     for (var i=0; i<code.length; i++) {
       var ch = code.charAt(i);
       if (ch == '{') {
-        while (maxLevel < level) {
-          current.push({
-            'begin': i,
-            'children': [],
-            'parent': parent
-          });
-        }
         level++;
+        newLevel = true;
       }
+      if (ch == '}') {
+        level--;
+        newLevel = true;
+      }
+      
+      if (level < 0 || level >= parts.length)
+        return;
+      
+      var ranges = parts[level].ranges;
+      if (newLevel) {
+        ranges.push([i, i]);
+        newLevel = false;
+      }
+      ranges[ranges.length-1][1] = i;
+      
+      console.log("ch='" + ch + "' level=" + level + " ranges=" + JSON.stringify(ranges));
     }
+    console.log(parts);
+    
+    updateUI();
   });
 }
 
@@ -75,7 +95,16 @@ function updateUI() {
     var w = canvas.width;
     var h = canvas.height;
     context.clearRect(0, 0, w, h);
-    //drawHilbertBlocks(context, w, h, range2[0], range2[1]);
+    
+    for (var level = 0; level < parts.length; level++) {
+      var part = parts[level];
+      var color = part.color;
+      context.fillStyle = color;
+      for (var i=0; i<part.ranges.length; i++) {
+        var range = part.ranges[i];
+        drawHilbertBlocks(context, w, h, range[0] * size_t / codeLen, range[1] * size_t / codeLen);
+      }
+    }
 }
 
 function drawHilbertBlocks(context, width, height, from, to) {
