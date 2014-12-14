@@ -23,11 +23,23 @@ const level = 7;
 const size_t =  (1<<(2*level));
 const size_2d = (1<<level);
 
-var range1 = [size_t / 3, 2*size_t/3];
-var span = range1[1] - range1[0];
-var range2 = [range1[0] + span/3, range1[1] - span/3];
+// MVC model
 
+var colors = [
+{ color: "#5757FF", ranges: [] },
+{ color: "#6A6AFF", ranges: [] },
+{ color: "#7979FF", ranges: [] },
+{ color: "#8C8CFF", ranges: [] },
+{ color: "#9999FF", ranges: [] },
+{ color: "#AAAAFF", ranges: [] },
+{ color: "#BBBBFF", ranges: [] },
+{ color: "#CACAFF", ranges: [] },
+{ color: "#E1E1FF", ranges: [] },
+{ color: "#EEEEFF", ranges: [] },
+{ color: "#F9F9FF", ranges: [] },
+];
 
+// end MVC model
 
 $(document).ready(function() {
   setupUI();
@@ -35,26 +47,6 @@ $(document).ready(function() {
 });
  
 function setupUI() {
-  $("#line-range-1").slider({
-    range: true,
-    min: 0,
-    max: size_t,
-    values: [range1[0], range1[1]],
-    slide: function(event, ui) {
-      range1 = ui.values;
-      updateUI();
-    }
-  });
-  $("#line-range-2").slider({
-    range: true,
-    min: 0,
-    max: size_t,
-    values: [range2[0], range2[1]],
-    slide: function(event, ui) {
-      range2 = ui.values;
-      updateUI();
-    }
-  });
   $("#transform").click(function() {
     var code = $("#source").text();
     var braceTree = [];
@@ -77,19 +69,13 @@ function setupUI() {
 }
 
 function updateUI() {
-    $("#text-range-1").text(range1[0] + " - " + range1[1]);
-    $("#text-range-2").text(range2[0] + " - " + range2[1]);
-
     var canvas = document.querySelector("#map");
     var context = canvas.getContext("2d");
 
     var w = canvas.width;
     var h = canvas.height;
     context.clearRect(0, 0, w, h);
-    context.fillStyle = '#550000';
-    drawHilbertBlocks(context, w, h, range1[0], range1[1]);
-    context.fillStyle = '#DD0000';
-    drawHilbertBlocks(context, w, h, range2[0], range2[1]);
+    //drawHilbertBlocks(context, w, h, range2[0], range2[1]);
 }
 
 function drawHilbertBlocks(context, width, height, from, to) {
@@ -131,11 +117,6 @@ function drawHilbertBlocks(context, width, height, from, to) {
     If you can see this message, your browser does not support canvas 
     and needs an update. Sorry. :(
 </canvas>
-<div id="line-range-1"></div> 
-<div id="text-range-1">&nbsp;</div>
-<div id="line-range-2"></div> 
-<div id="text-range-2">&nbsp;</div>
-
 
 </body>
 </html>
