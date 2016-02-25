@@ -22,7 +22,7 @@
 		scene.add( light );
 
 		var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-		directionalLight.position.set( 3, 3, 3 );
+		directionalLight.position.set( 1, 1, 1 );
 		scene.add( directionalLight );
 
 		var rootObject = new THREE.Object3D();
@@ -48,6 +48,8 @@
 			var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
 			var cube = new THREE.Mesh( geometry, material );
 			rootObject.add( cube );
+
+			rootObject.add(new THREE.Mesh(new THREE.BoxGeometry(3,0.1,3), material));
 		}
 
 	</script>
