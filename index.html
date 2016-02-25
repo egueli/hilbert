@@ -1,151 +1,57 @@
 <!DOCTYPE html>
 <html>
- 
 <head>
-<title>Hilbert Code</title>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
-
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
-<script src="hilbert.js"></script>
-
-<style>
-#map {
-  padding: 10px;
-  border:1px solid #000000;
-
-}
-</style>
-
-<script>
-
-const level = 7;
-const size_t =  (1<<(2*level));
-const size_2d = (1<<level);
-
-const partsInit = [
-{ color: "#5757FF", ranges: [] },
-{ color: "#6A6AFF", ranges: [] },
-{ color: "#7979FF", ranges: [] },
-{ color: "#8C8CFF", ranges: [] },
-{ color: "#9999FF", ranges: [] },
-{ color: "#AAAAFF", ranges: [] },
-{ color: "#BBBBFF", ranges: [] },
-{ color: "#CACAFF", ranges: [] },
-{ color: "#E1E1FF", ranges: [] },
-{ color: "#EEEEFF", ranges: [] },
-{ color: "#F9F9FF", ranges: [] },
-];
-
-
-// MVC model
-var parts = [];
-var codeLen = 0;
-// end MVC model
-
-$(document).ready(function() {
-  setupUI();
-  updateUI();
-});
- 
-function setupUI() {
-  //$("#transform").click(function() {
-  $('#source').bind('input propertychange', function() {
-    const code = $("#source").val();
-    codeLen = code.length - 1;
-    
-    var level = 0;
-    var newLevel = true;
-    
-    parts = JSON.parse(JSON.stringify(partsInit));
-
-    for (var i=0; i<code.length; i++) {
-      var ch = code.charAt(i);
-      if (ch == '{') {
-        level++;
-        newLevel = true;
-      }
-      if (ch == '}') {
-        level--;
-        newLevel = true;
-      }
-      
-      if (level < 0 || level >= parts.length)
-        return;
-      
-      var ranges = parts[level].ranges;
-      if (newLevel) {
-        ranges.push([i, i]);
-        newLevel = false;
-      }
-      ranges[ranges.length-1][1] = i;
-      
-      console.log("ch='" + ch + "' level=" + level + " ranges=" + JSON.stringify(ranges));
-    }
-    console.log(parts);
-    
-    updateUI();
-  });
-}
-
-function updateUI() {
-    var canvas = document.querySelector("#map");
-    var context = canvas.getContext("2d");
-
-    var w = canvas.width;
-    var h = canvas.height;
-    context.clearRect(0, 0, w, h);
-    
-    for (var level = 0; level < parts.length; level++) {
-      var part = parts[level];
-      var color = part.color;
-      context.fillStyle = color;
-      for (var i=0; i<part.ranges.length; i++) {
-        var range = part.ranges[i];
-        drawHilbertBlocks(context, w, h, range[0] * size_t / codeLen, range[1] * size_t / codeLen);
-      }
-    }
-}
-
-function drawHilbertBlocks(context, width, height, from, to) {
-  var size_cell = Math.min(width, height) / size_2d;
-  var prevXY = null;
-
-
-  context.beginPath();
-  for (var t=from; t<Math.min(to, size_t); t++) {
-    var xyH = hilbert.d2xy(level, t);
-    if (false) {
-      var xy = xyH.map(function(n) { return n * size_cell + size_cell / 2; });
-      if (prevXY) {
-        context.moveTo(prevXY[0], prevXY[1]);
-        context.lineTo(xy[0], xy[1]);
-      }
-      prevXY = xy;
-    }
-    else {
-      var xy = xyH.map(function(n) { return n * size_cell; });
-      context.fillRect(xy[0], xy[1], size_cell, size_cell);
-    }
-  }
-  context.stroke();
-}
-</script>
-
-
+	<meta charset=utf-8>
+	<title>My first Three.js app</title>
+	<style>
+		body { margin: 0; }
+		canvas { width: 100%; height: 100% }
+	</style>
 </head>
- 
 <body>
+	<script src="js/three.min.js"></script>
+	<script>
+		var scene = new THREE.Scene();
+		var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-<textarea id="source" rows="15" cols="80">
-</textarea>
-<input type="submit" id="transform"></input>
+		var renderer = new THREE.WebGLRenderer();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		document.body.appendChild( renderer.domElement );
 
+		var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+		scene.add( light );
 
-<canvas id="map" width="256" height="256">
-    If you can see this message, your browser does not support canvas 
-    and needs an update. Sorry. :(
-</canvas>
+		var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+		directionalLight.position.set( 1, 1, 1 );
+		scene.add( directionalLight );
 
+		var rootObject = new THREE.Object3D();
+		scene.add(rootObject);
+
+		camera.position.y = 3;
+		camera.position.z = 3;
+		camera.lookAt(new THREE.Vector3(0,0,0));
+
+		buildGeometries();
+
+		function render() {
+			requestAnimationFrame( render );
+
+			rootObject.rotation.y += 0.01;
+
+			renderer.render( scene, camera );
+		}
+		render();
+
+		function buildGeometries() {
+			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
+			var cube = new THREE.Mesh( geometry, material );
+			rootObject.add( cube );
+
+			rootObject.add(new THREE.Mesh(new THREE.BoxGeometry(3,0.1,3), material));
+		}
+
+	</script>
 </body>
 </html>
