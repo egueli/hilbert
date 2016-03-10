@@ -33,30 +33,39 @@
 		camera.position.z = 1;
 		camera.lookAt(new THREE.Vector3(0,0,0));
 
-		buildGeometries();
 
 		function render() {
 			requestAnimationFrame( render );
 
 			rootObject.rotation.y += 0.01;
 
+			updateGeometries();
+
 			renderer.render( scene, camera );
 		}
-		render();
+
+		var green = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
+
+		var blocks = new THREE.Object3D();
+		rootObject.add(blocks);
 
 		function buildGeometries() {
-			var green = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
 
 			rootObject.add(new THREE.Mesh(new THREE.BoxGeometry(1.05,0.1,1.05), green));
+		}
 
-			traverseRangeInHilbert(5, 0, 0.255, function(x, y, size) {
+		function updateGeometries() {
+			rootObject.remove(blocks);
+			blocks = new THREE.Object3D();
+			traverseRangeInHilbert(3, 0, 0.255, function(x, y, size) {
 				var white = new THREE.MeshLambertMaterial( { color: 0xffffff } );
 				var geometry = new THREE.BoxGeometry(size,0.25,size);
 				var block = new THREE.Mesh(geometry, white);
 				block.position.x = x - 0.5 + size / 2;
 				block.position.z = y - 0.5 + size / 2;
-				rootObject.add(block);
+				blocks.add(block);
 			});
+			rootObject.add(blocks);
 		}
 
 
@@ -75,6 +84,10 @@
 				callback(x, y, blockSize);
 			}
 		}
+
+		buildGeometries();
+		render();
+
 	</script>
 </body>
 </html>
