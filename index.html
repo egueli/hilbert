@@ -37,9 +37,9 @@
 		function render() {
 			requestAnimationFrame( render );
 
-			rootObject.rotation.y += 0.01;
+			rootObject.rotation.y += 0.003;
 
-			updateGeometries();
+			//updateGeometries();
 
 			renderer.render( scene, camera );
 		}
@@ -50,21 +50,73 @@
 		rootObject.add(blocks);
 
 		function buildGeometries() {
-
-			rootObject.add(new THREE.Mesh(new THREE.BoxGeometry(1.05,0.1,1.05), green));
+			var ph = 0.05;
+			var planeGeom = new THREE.BoxGeometry(1.05, ph, 1.05);
+			var planeMesh = new THREE.Mesh(planeGeom, green);
+			planeMesh.position.y = -ph;
+			rootObject.add(planeMesh);
 		}
 
 		function updateGeometries() {
 			rootObject.remove(blocks);
 			blocks = new THREE.Object3D();
-			traverseRangeInHilbert(3, 0, 0.255, function(x, y, size) {
-				var white = new THREE.MeshLambertMaterial( { color: 0xffffff } );
-				var geometry = new THREE.BoxGeometry(size,0.25,size);
-				var block = new THREE.Mesh(geometry, white);
-				block.position.x = x - 0.5 + size / 2;
-				block.position.z = y - 0.5 + size / 2;
-				blocks.add(block);
-			});
+			function putBlocks(color, h) {
+				var material = new THREE.MeshLambertMaterial( { color: color } );
+				var thick = 0.1;
+				return function(x, y, size) {
+					var geometry = new THREE.BoxGeometry(size,thick,size);
+					var block = new THREE.Mesh(geometry, material);
+					block.position.x = x - 0.5 + size / 2;
+					block.position.y = h + thick/2;
+					block.position.z = y - 0.5 + size / 2;
+					blocks.add(block);
+				}
+			}
+			//var n = 3;
+			//traverseRangeInHilbert(4, n*0.25, n*0.25+0.25, putBlocks(0xffff00, 0));
+			var tree = {
+				size: 10,
+				children: [
+					{
+						size: 8,
+						children: [
+							{
+								size: 2,
+								children: []
+							},
+							{
+								size: 3,
+								children: []
+							},
+							{
+								size: 1,
+								children: []
+							}
+						]
+					},
+					{
+						size: 1,
+						children: []
+					}
+				]
+			};
+
+			function traverse(branch, level, offset, scale) {
+				var begin = offset * scale;
+				var end = (offset + branch.size) * scale;
+				console.log("traverseRangeInHilbert("
+					+ "begin=" + begin
+					+ " end=" + end
+					+ " level=" + level
+					+ ")");
+				traverseRangeInHilbert(4, begin, end, putBlocks(0xeeee00, level * 0.1));
+				for (var i = 0; i < branch.children.length; i++) {
+					traverse(branch.children[i], level + 1, begin, scale);
+					begin += branch.children[i].size;					
+				}
+			}
+
+			traverse(tree, 0, 0, 1 / tree.size);
 			rootObject.add(blocks);
 		}
 
@@ -86,6 +138,7 @@
 		}
 
 		buildGeometries();
+		updateGeometries();
 		render();
 
 	</script>
