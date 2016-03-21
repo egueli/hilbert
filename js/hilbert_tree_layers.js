@@ -43,73 +43,74 @@ function buildGeometries() {
 	rootObject.add(planeMesh);
 }
 
+function putBlocks(h) {
+	var color = new THREE.Color();
+	color.setHSL(Math.random(), Math.random(), 0.5);
+	var material = new THREE.MeshLambertMaterial(
+		{ color: color } 
+		);
+	var thick = 0.1;
+	return function(x, y, size) {
+		var geometry = new THREE.BoxGeometry(size,thick,size);
+		var block = new THREE.Mesh(geometry, material);
+		block.position.x = x - 0.5 + size / 2;
+		block.position.y = h + thick/2;
+		block.position.z = y - 0.5 + size / 2;
+		blocks.add(block);
+	}
+}
+
+
 function updateGeometries() {
 	rootObject.remove(blocks);
 	blocks = new THREE.Object3D();
-	function putBlocks(h) {
-		var color = new THREE.Color();
-		color.setHSL(Math.random(), Math.random(), 0.5);
-		var material = new THREE.MeshLambertMaterial(
-		 { color: color } 
-		 );
-		var thick = 0.1;
-		return function(x, y, size) {
-			var geometry = new THREE.BoxGeometry(size,thick,size);
-			var block = new THREE.Mesh(geometry, material);
-			block.position.x = x - 0.5 + size / 2;
-			block.position.y = h + thick/2;
-			block.position.z = y - 0.5 + size / 2;
-			blocks.add(block);
-		}
-	}
 	//var n = 3;
 	//traverseRangeInHilbert(4, n*0.25, n*0.25+0.25, putBlocks(0xffff00, 0));
 	var tree = {
 		size: 10,
 		children: [
+		{
+			size: 8,
+			children: [
 			{
-				size: 8,
-				children: [
-					{
-						size: 2,
-						children: []
-					},
-					{
-						size: 3,
-						children: []
-					},
-					{
-						size: 1,
-						children: []
-					}
-				]
+				size: 2,
+				children: []
+			},
+			{
+				size: 3,
+				children: []
 			},
 			{
 				size: 1,
 				children: []
 			}
+			]
+		},
+		{
+			size: 1,
+			children: []
+		}
 		]
 	};
-
-	function traverse(branch, level, offset, scale) {
-		var begin = offset * scale;
-		var end = (offset + branch.size) * scale;
-		console.log("traverseRangeInHilbert("
-			+ "begin=" + begin
-			+ " end=" + end
-			+ " level=" + level
-			+ ")");
-		traverseRangeInHilbert(4, begin, end, putBlocks(level * 0.1));
-		for (var i = 0; i < branch.children.length; i++) {
-			traverse(branch.children[i], level + 1, begin, scale);
-			begin += branch.children[i].size;					
-		}
-	}
 
 	traverse(tree, 0, 0, 1 / tree.size);
 	rootObject.add(blocks);
 }
 
+function traverse(branch, level, offset, scale) {
+	var begin = offset * scale;
+	var end = (offset + branch.size) * scale;
+	console.log("traverseRangeInHilbert("
+		+ "begin=" + begin
+		+ " end=" + end
+		+ " level=" + level
+		+ ")");
+	traverseRangeInHilbert(4, begin, end, putBlocks(level * 0.1));
+	for (var i = 0; i < branch.children.length; i++) {
+		traverse(branch.children[i], level + 1, begin, scale);
+		begin += branch.children[i].size;					
+	}
+}
 
 function traverseRangeInHilbert(level, from, to, callback) {
 	var size_t =  (1<<(2*level));
