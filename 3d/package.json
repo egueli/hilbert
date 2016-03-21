@@ -1,0 +1,15 @@
+{
+  "name": "3d",
+  "version": "1.0.0",
+  "description": "",
+  "main": "scandir.node.js",
+  "dependencies": {
+    "circular-json": "^0.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

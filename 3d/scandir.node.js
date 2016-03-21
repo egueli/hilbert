@@ -1,5 +1,6 @@
 var fs = require('fs');
 var util = require('util');
+var CircularJSON = require('circular-json');
 
 var root = {
 	size: 0,
@@ -36,4 +37,4 @@ function scanRecursively(path, branch) {
 }
 
 scanRecursively(".", root);
-console.log(util.inspect(root,{depth:null}));
+console.log(CircularJSON.stringify(root));
