@@ -72,11 +72,6 @@ function updateGeometries() {
 function traverse(branch, level, offset, scale) {
 	var begin = offset * scale;
 	var end = (offset + branch.size) * scale;
-	console.log("traverseRangeInHilbert("
-		+ "begin=" + begin
-		+ " end=" + end
-		+ " level=" + level
-		+ ")");
 	traverseRangeInHilbert(4, begin, end, putBlocks(level * 0.1));
 	for (var i = 0; i < branch.children.length; i++) {
 		traverse(branch.children[i], level + 1, begin, scale);
