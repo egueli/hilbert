@@ -10,7 +10,6 @@ var root = {
 
 
 function scanRecursively(path, branch) {
-	console.log(path);
 	var items = fs.readdirSync(path);
     for (var i=0; i<items.length; i++) {
     	var item = items[i];

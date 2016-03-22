@@ -60,39 +60,11 @@ function putBlocks(h) {
 	}
 }
 
+var tree;
 
 function updateGeometries() {
 	rootObject.remove(blocks);
 	blocks = new THREE.Object3D();
-	//var n = 3;
-	//traverseRangeInHilbert(4, n*0.25, n*0.25+0.25, putBlocks(0xffff00, 0));
-	var tree = {
-		size: 10,
-		children: [
-		{
-			size: 8,
-			children: [
-			{
-				size: 2,
-				children: []
-			},
-			{
-				size: 3,
-				children: []
-			},
-			{
-				size: 1,
-				children: []
-			}
-			]
-		},
-		{
-			size: 1,
-			children: []
-		}
-		]
-	};
-
 	traverse(tree, 0, 0, 1 / tree.size);
 	rootObject.add(blocks);
 }
@@ -128,6 +100,21 @@ function traverseRangeInHilbert(level, from, to, callback) {
 	}
 }
 
-buildGeometries();
-updateGeometries();
-render();
+$(document).ready(function() {
+	console.log("hello jquery");
+	$.ajax({
+		url: "scan.json",
+		dataType: "text"
+	}).done(function(data) {
+		tree = CircularJSON.parse(data);
+		start();
+	}).fail(function(err) {
+		console.log(err);
+	});
+});
+
+function start() {
+	buildGeometries();
+	updateGeometries();
+	render();
+}
