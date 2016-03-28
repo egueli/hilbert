@@ -64,13 +64,6 @@ function doTree(rangeToTest, callback, depth, scale, offset) {
 		return;
 	}
 
-	// console.log(indent(depth) + 
-	// 	"doTree(" + rangeToTest.toString()
-	// 		+ ", " + depth
-	// 		+ ", " + scale
-	// 		+ ", " + offset
-	// 		+ ")");
-
 	for (var i = 0; i < 1; i += 0.25) {
 		var quadrant = range(i, i + 0.25).times(scale).add(offset);
 		var result = rangeToTest.overlapTest(quadrant);
