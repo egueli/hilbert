@@ -69,12 +69,12 @@ function updateGeometries() {
 	rootObject.add(blocks);
 }
 
-function traverse(branch, level, offset, scale) {
+function traverse(branch, depth, offset, scale) {
 	var begin = offset * scale;
 	var end = (offset + branch.size) * scale;
-	traverseRangeInHilbert(4, begin, end, putBlocks(level * 0.1));
+	traverseRangeInHilbert(4, begin, end, putBlocks(depth * 0.1));
 	for (var i = 0; i < branch.children.length; i++) {
-		traverse(branch.children[i], level + 1, begin, scale);
+		traverse(branch.children[i], depth + 1, begin, scale);
 		begin += branch.children[i].size;					
 	}
 }
