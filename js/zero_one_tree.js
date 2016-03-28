@@ -25,6 +25,7 @@ class Range {
 		if (reference.from >= this.from && reference.to <= this.to) // ref is fully inside this
 			return 'in';
 //		if (reference.from <= this.from && reference.to >= this.to) // this is fully inside ref
+		// should return 'in', but this case requires deeper investigation
 			return 'part';
 	}
 
@@ -57,9 +58,9 @@ function indent(depth) {
 	return s;
 }
 
-function doTree(rangeToTest, depth, scale, offset) {
+function doTree(rangeToTest, callback, depth, scale, offset) {
 	if (depth === undefined) {
-		doTree(rangeToTest, 0, 1, 0);
+		doTree(rangeToTest, callback, 0, 1, 0);
 		return;
 	}
 
@@ -74,15 +75,17 @@ function doTree(rangeToTest, depth, scale, offset) {
 		var quadrant = range(i, i + 0.25).times(scale).add(offset);
 		var result = rangeToTest.overlapTest(quadrant);
 
-		var s = indent(depth);
-		s += quadrant.toString() + ": ";
-		s += result;
-		console.log(s);
-
+		if (result == 'in') {
+			callback(depth, scale, quadrant);
+		}
 		if (result == 'part' && depth < 10) {
-			doTree(rangeToTest, depth + 1, scale / 4, quadrant.from);
+			doTree(rangeToTest, callback, depth + 1, scale / 4, quadrant.from);
 		}
 	}
 }
 
-doTree(range(process.argv[2], process.argv[3]));
+doTree(range(process.argv[2], process.argv[3]), function(depth, scale, quadrant) {
+	var s = indent(depth);
+	s += quadrant.toString();
+	console.log(s);
+});
