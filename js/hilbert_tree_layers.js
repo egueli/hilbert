@@ -23,7 +23,7 @@ camera.lookAt(new THREE.Vector3(0,0,0));
 function render() {
 	requestAnimationFrame( render );
 
-	rootObject.rotation.y += 0.003;
+	//rootObject.rotation.y += 0.003;
 
 	//updateGeometries();
 
@@ -65,34 +65,70 @@ var tree;
 function updateGeometries() {
 	rootObject.remove(blocks);
 	blocks = new THREE.Object3D();
-	traverse(tree, 0, 0, 1 / tree.size);
+	traverseRecursively(tree, 0, 0, 1 / tree.size);
 	rootObject.add(blocks);
 }
 
-function traverse(branch, depth, offset, scale) {
+function traverseRecursively(branch, depth, offset, scale) {
+	if (depth > 1)
+		return;
+
 	var begin = offset * scale;
 	var end = (offset + branch.size) * scale;
-	traverseRangeInHilbert(4, begin, end, putBlocks(depth * 0.1));
+	console.log("traverse: branch:", branch, "depth", depth, "begin", begin, "end", end);
+	traverseRangeInHilbert(3, begin, end, putBlocks(depth * 0.1));
+
 	for (var i = 0; i < branch.children.length; i++) {
-		traverse(branch.children[i], depth + 1, begin, scale);
-		begin += branch.children[i].size;					
+	 	traverseRecursively(branch.children[i], depth + 1, begin, scale);
+	 	begin += branch.children[i].size;					
 	}
 }
 
+var rid = 0;
 function traverseRangeInHilbert(level, from, to, callback) {
-	var size_t =  (1<<(2*level));
+	var myRID = rid++;
+	var size_t = (1<<(2*level));
 	var size_2d = (1<<level);
 	var blockSize = 1 / size_2d;
+	// console.log("traverseRangeInHilbert: " + 
+	// 	"rid", myRID,
+	// 	"from", from,
+	// 	"to", to,
+	// 	"level", level,
+	// 	"size_t", size_t,
+	// 	"size_2d", size_2d,
+	// 	"blockSize", blockSize);
 	from = Math.max(0, from);
 	to = Math.min(to, 1);
-	var from_t = Math.round(from * size_t);
-	var to_t = Math.round(to * size_t);
+	var from_t = Math.floor(from * size_t);
+	var to_t = Math.floor(to * size_t);
 	for (var t = from_t; t < to_t; t++) {
 		var xyH = hilbert.d2xy(level, t);
 		var x = xyH[0] / size_2d;
 		var y = xyH[1] / size_2d;
-		callback(x, y, blockSize);
+		// console.log("-- level", level, "t", t, "=> xyH", xyH);
+		callback(x + 1, y, blockSize);
 	}
+
+	Quadtree.doTree(range(from, to), 1, function(depth, scale, quadrant) {
+		//console.log("quadtree: rid " + myRID + " depth " + depth + " scale " + scale + " quadrant " + quadrant);
+		var level = depth + 1;
+		var size_t = (1<<(2*level));
+		var size_2d = (1<<level);
+		var blockSize = 1 / size_2d;
+		var t = quadrant.from * size_t;
+		var xyH = hilbert.d2xy(level, t);
+		var x = xyH[0] / size_2d;
+		var y = xyH[1] / size_2d;
+		// console.log("++ level", level,
+		// 	"t", t, "=> xyH", xyH,
+		// 	"size_t", size_t,
+		// 	"size_2d", size_2d,
+		// 	"blockSize", blockSize
+		// );
+		callback(x, y, blockSize);
+	});
+
 }
 
 $(document).ready(function() {
@@ -102,6 +138,24 @@ $(document).ready(function() {
 		dataType: "text"
 	}).done(function(data) {
 		tree = CircularJSON.parse(data);
+// 		tree = {
+// 			size: 1,
+// 			children: [
+// 				{
+// 					size: 0.4,
+// 					children: [						{
+// 							size: 0.3,
+// 							children: []
+// 						}
+// ]
+// 				},
+// 				{
+// 					size: 0.6,
+// 					children: [
+// 					]
+// 				}
+// 			]
+// 		}
 		start();
 	}).fail(function(err) {
 		console.log(err);
