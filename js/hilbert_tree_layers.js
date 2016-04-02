@@ -79,8 +79,10 @@ function traverseRecursively(branch, depth, offset, scale) {
 	traverseRangeInHilbert(3, begin, end, putBlocks(depth * 0.1));
 
 	for (var i = 0; i < branch.children.length; i++) {
-	 	traverseRecursively(branch.children[i], depth + 1, begin, scale);
-	 	begin += branch.children[i].size;					
+		var child = branch.children[i];
+	 	traverseRecursively(child, depth + 1, begin, scale);
+	 	begin += child.size;					
+	 	if (child.size * scale > 1/16) break;
 	}
 }
 
@@ -137,25 +139,20 @@ $(document).ready(function() {
 		url: "scan.json",
 		dataType: "text"
 	}).done(function(data) {
-		tree = CircularJSON.parse(data);
-// 		tree = {
-// 			size: 1,
-// 			children: [
-// 				{
-// 					size: 0.4,
-// 					children: [						{
-// 							size: 0.3,
-// 							children: []
-// 						}
-// ]
-// 				},
-// 				{
-// 					size: 0.6,
-// 					children: [
-// 					]
-// 				}
-// 			]
-// 		}
+		// tree = CircularJSON.parse(data);
+		tree = {
+			size: 1,
+			children: [
+				{
+					size: 0.0008351470364933947,
+					children: []
+				},
+				{
+					size: 0.06848205699,
+					children: []
+				}
+			]
+		}
 		start();
 	}).fail(function(err) {
 		console.log(err);
