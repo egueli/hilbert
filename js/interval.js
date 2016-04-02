@@ -9,6 +9,10 @@ class Range {
 		this.to = to;
 	}
 
+	get length() {
+		return this.to - this.from;
+	}
+
 	times(n) {
 		return new Range(this.from * n, this.to * n);
 	}
@@ -19,14 +23,14 @@ class Range {
 
 	overlapTest(reference) {
 		if (reference.to <= this.from) // this is fully on the right of ref
-			return 'out';
+			return 0;
 		if (reference.from >= this.to) // this is fully on the left of ref
-			return 'out';
-		if (reference.from >= this.from && reference.to <= this.to) // ref is fully inside this
-			return 'in';
-//		if (reference.from <= this.from && reference.to >= this.to) // this is fully inside ref
-		// should return 'in', but this case requires deeper investigation
-			return 'part';
+			return 0;
+		var beforeRef = Math.max(0, this.from - reference.from);
+		var afterRef = Math.max(0, reference.to - this.to);
+		var outsideRef = beforeRef + afterRef;
+		return 1 - (outsideRef / reference.length);
+
 	}
 
 	toString() {
@@ -41,15 +45,15 @@ function range(from, to) {
 /*
 var rangeToTest = range(0.2, 0.4);
 
-console.log(rangeToTest.overlapTest(range(0.0, 0.1)) == 'out');
-console.log(rangeToTest.overlapTest(range(0.1, 0.2)) == 'out');
-console.log(rangeToTest.overlapTest(range(0.1, 0.3)) == 'part');
-console.log(rangeToTest.overlapTest(range(0.1, 0.4)) == 'in');
-console.log(rangeToTest.overlapTest(range(0.1, 0.5)) == 'in');
-console.log(rangeToTest.overlapTest(range(0.2, 0.5)) == 'in');
-console.log(rangeToTest.overlapTest(range(0.3, 0.5)) == 'part');
-console.log(rangeToTest.overlapTest(range(0.4, 0.5)) == 'out');
-console.log(rangeToTest.overlapTest(range(0.2, 0.4)) == 'in');
-console.log(rangeToTest.overlapTest(range(0.203125, 0.21875)) == 'in');
+console.log(rangeToTest.overlapTest(range(0.0, 0.1)) == 0);
+console.log(rangeToTest.overlapTest(range(0.1, 0.2)) == 0);
+console.log(rangeToTest.overlapTest(range(0.1, 0.3)) == 0.5); // TODO fix float comparison
+console.log(rangeToTest.overlapTest(range(0.1, 0.4)) == 1);
+console.log(rangeToTest.overlapTest(range(0.1, 0.5)) == 1);
+console.log(rangeToTest.overlapTest(range(0.2, 0.5)) == 1);
+console.log(rangeToTest.overlapTest(range(0.3, 0.5)) == 0.5);
+console.log(rangeToTest.overlapTest(range(0.4, 0.5)) == 0);
+console.log(rangeToTest.overlapTest(range(0.2, 0.4)) == 1);
+console.log(rangeToTest.overlapTest(range(0.203125, 0.21875)) == 1);
 */
 
