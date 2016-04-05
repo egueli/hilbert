@@ -10,10 +10,8 @@ class Quadtree {
 			var quadrant = range(i, i + 0.25).times(scale).add(offset);
 			var result = rangeToTest.overlapTest(quadrant);
 
-			console.log("depth", depth, "rangeToTest", rangeToTest, "vs. ref", quadrant, "=", result);
 			if (result == 1) {
 				callback(depth, scale, quadrant);
-				console.log("callback: full block")
 			}
 			else if (result > 0) {
 				if (depth <= maxDepth) {
@@ -21,7 +19,6 @@ class Quadtree {
 				}
 				else if (result >= 0.5) {
 					callback(depth, scale, quadrant);
-					console.log("callback: rounding due to depth limit");
 				}
 			}
 		}
