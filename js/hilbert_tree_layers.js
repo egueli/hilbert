@@ -44,9 +44,9 @@ function buildGeometries() {
 	rootObject.add(planeMesh);
 }
 
-function putBlocks(h) {
+function putBlocks(height, hue) {
 	var color = new THREE.Color();
-	color.setHSL(Math.random(), Math.random(), 0.5);
+	color.setHSL(hue, 0.5 + 0.25*Math.random(), 0.5);
 	var material = new THREE.MeshLambertMaterial(
 		{ color: color } 
 		);
@@ -54,7 +54,7 @@ function putBlocks(h) {
 		var geometry = new THREE.BoxGeometry(size, layerHeight, size);
 		var block = new THREE.Mesh(geometry, material);
 		block.position.x = x - 0.5 + size / 2;
-		block.position.y = h + layerHeight / 2;
+		block.position.y = height + layerHeight / 2;
 		block.position.z = y - 0.5 + size / 2;
 		blocks.add(block);
 	}
@@ -74,7 +74,7 @@ function traverseRecursively(branch, depth, begin, scale) {
 		return;
 
 	var end = begin + (branch.size * scale);
-	traverseRangeInHilbert(maxDetail, begin, end, putBlocks(depth * layerHeight));
+	traverseRangeInHilbert(maxDetail, begin, end, putBlocks(depth * layerHeight, (begin + end) / 2));
 
 	var childBegin = begin;
 	for (var i = 0; i < branch.children.length; i++) {
